@@ -29,7 +29,7 @@ namespace Calculator
 
             foreach (var item in arr)
             {
-                if (item.Contains(_charDer))
+                if (item.Contains(_charDer) || int.TryParse(item, out int res))
                 {
                     numbers.Push(item);
                 }
@@ -89,8 +89,15 @@ namespace Calculator
                                 {
                                     while (operators.Count > 0)
                                     {
-                                        Result(operators.Pop(), numbers.Pop(), numbers.Pop(), result);
-                                        currentPriority -= 1;
+                                        if (numbers.Count > 1)
+                                        {
+                                            Result(operators.Pop(), numbers.Pop(), numbers.Pop(), result);
+                                            currentPriority -= 1;
+                                        }
+                                        else
+                                        {
+                                            result.Append(operators.Pop() + " " + GetDerivative(numbers.Pop()));
+                                        }
                                     }
                                     operators.Push(item);
                                 }
@@ -118,8 +125,15 @@ namespace Calculator
                                 {
                                     while (operators.Count > 0)
                                     {
-                                        Result(operators.Pop(), numbers.Pop(), numbers.Pop(), result);
-                                        currentPriority -= 2;
+                                        if (numbers.Count > 1)
+                                        {
+                                            Result(operators.Pop(), numbers.Pop(), numbers.Pop(), result);
+                                            currentPriority -= 2;
+                                        }
+                                        else
+                                        {
+                                            result.Append(operators.Pop() + " " + GetDerivative(numbers.Pop()));
+                                        }
                                     }
                                     operators.Push(item);
                                 }
@@ -143,7 +157,7 @@ namespace Calculator
             {
                 while (operators.Count > 0)
                 {
-                    if (numbers.Count > 2)
+                    if (numbers.Count > 1)
                     {
                         Result(operators.Pop(), numbers.Pop(), numbers.Pop(), result);
                     }
@@ -156,7 +170,7 @@ namespace Calculator
 
 
 
-            return result.ToString();
+            return result.Append("+ C").ToString();
         }
 
 
@@ -170,12 +184,12 @@ namespace Calculator
                 case "-":
                     result.Append(GetDerivative(x1) + "- " + GetDerivative(x2));
                     break;
-                case "*":
-                    result.Append(GetDerivative(x1) + "* " + x2 + "+ " + x1 + "* " + GetDerivative(x2));
-                    break;
-                case "/":
-                    result.Append($"{GetDerivative(x1)} * {x2} - {GetDerivative(x2)} * {x1} / {x2}**2");
-                    break;
+                //case "*":
+                //    result.Append(x1 + "* " + GetDerivative(x2) + "- " + GetDerivative(x2) + "* " + GetDerivative(x2));
+                //    break;
+                //case "/":
+                //    result.Append($"{GetDerivative(x1)} * {x2} - {GetDerivative(x2)} * {x1} / {x2}**2");
+                //    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -185,28 +199,18 @@ namespace Calculator
         {
             StringBuilder result = new StringBuilder();
 
-            if (x.Contains("**"))
+            if (x.Contains("**") && x.Contains(_charDer))
             {
                 var arr = x.Split("**").Select(x => x.Contains(_charDer) ? x.Replace(_charDer, "") : x)
                     .Where(_ => !string.IsNullOrEmpty(_)).ToArray();
 
-                if (!x.StartsWith(_charDer))
+                if(arr.Length == 2)
                 {
-                    result.Append(int.Parse(arr[0]) * int.Parse(arr[1]) + _charDer);
-                    
-                    if (arr[1] != "2")
-                    {
-                        result.Append("**" + (int.Parse(arr[1]) - 1).ToString());
-                    }
+                    result.Append($"{double.Parse(arr[0]) * (double.Parse(arr[1]) + 1)}{_charDer}**{int.Parse(arr[1]) + 1} ");
                 }
                 else
                 {
-                    result.Append(arr[0] + _charDer);
-
-                    if (arr[0] != "2")
-                    {
-                        result.Append("**" + (int.Parse(arr[0]) - 1).ToString());
-                    }
+                    result.Append($"{1 / double.Parse(arr[0]) + 1}{_charDer}**{int.Parse(arr[0]) + 1} ");
                 }
             }
 
@@ -216,7 +220,7 @@ namespace Calculator
 
                 if (arr[1] == _charDer)
                 {
-                    result.Append($"cos({_charDer})");
+                    result.Append($"-cos({_charDer}) ");
                 }
             }
 
@@ -226,14 +230,31 @@ namespace Calculator
 
                 if (arr[1] == _charDer)
                 {
-                    result.Append($"-sin({_charDer})");
+                    result.Append($"sin({_charDer}) ");
                 }
             }
 
             else if (x.Contains(_charDer))
             {
                 var rep = x.Replace(_charDer, "");
-                result.Append(rep);
+
+                if (double.TryParse(rep, out double res))
+                {
+                    result.Append($"{res / 2}{_charDer}**{2} ");
+                }
+                else
+                {
+                    result.Append($"0.5*{_charDer}**{2} ");
+                }
+            }
+
+            else if(int.TryParse(x, out int number))
+            {
+                if(number == 1)
+                {
+                    result.Append(_charDer + " ");
+                }
+                result.Append($"{x}{_charDer} ");
             }
 
             return result.Append(" ").ToString();

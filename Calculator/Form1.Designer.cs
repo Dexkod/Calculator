@@ -32,6 +32,7 @@
             CalculateBtn = new Button();
             DerTextBox = new TextBox();
             Label1 = new Label();
+            button1 = new Button();
             SuspendLayout();
             // 
             // CalculateTextBox
@@ -67,11 +68,21 @@
             Label1.TabIndex = 3;
             Label1.Text = "Производная";
             // 
+            // button1
+            // 
+            button1.Location = new Point(694, 53);
+            button1.Name = "button1";
+            button1.Size = new Size(94, 29);
+            button1.TabIndex = 4;
+            button1.Text = "Сохранить";
+            button1.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(button1);
             Controls.Add(Label1);
             Controls.Add(DerTextBox);
             Controls.Add(CalculateBtn);
@@ -88,5 +99,6 @@
         private Button CalculateBtn;
         private TextBox DerTextBox;
         private Label Label1;
+        private Button button1;
     }
 }
